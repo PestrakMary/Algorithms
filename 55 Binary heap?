@@ -1,0 +1,52 @@
+import java.io.*;
+import java.util.Scanner;
+
+public class Main implements Runnable {
+
+    @Override
+    public void run() {
+        try {
+            Scanner scanner = new Scanner(new File("input.txt"));
+            int size = 0;
+            if (scanner.hasNext()) {
+                size = scanner.nextInt();
+            }
+            long[] heap = new long[size];
+            for (int i = 0; i < size; i++) {
+
+                heap[i] = scanner.nextInt();
+            }
+            boolean flag = true;
+            PrintWriter printWriter = new PrintWriter("output.txt");
+            for (int i = 0; 2 * i + 1 < size; i++) {
+                if (2 * i + 2 < size) {
+                    if (heap[i] <= heap[2 * i + 1] && heap[i] <= heap[2 * i + 2]) {
+                        continue;
+                    } else {
+                        flag = false;
+                    }
+                } else {
+                    if (heap[i] <= heap[2 * i + 1]) {
+                        continue;
+                    } else {
+                        flag = false;
+                    }
+                }
+            }
+
+            if (flag == false) {
+                printWriter.println("No");
+            } else {
+                printWriter.println("Yes");
+            }
+            printWriter.flush();
+        } catch (IOException ex) {
+
+        }
+
+    }
+
+    public static void main(String[] args) {
+        new Thread(null, new Main(), "", 64 * 1024 * 1024).start();
+    }
+}
