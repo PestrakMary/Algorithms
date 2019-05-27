@@ -1,0 +1,57 @@
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Scanner;
+
+public class Main implements Runnable {
+
+    static PrintWriter printWriter;
+
+    @Override
+    public void run() {
+        try {
+            Scanner scanner = new Scanner(new File("input.txt"));
+            long n = 0;
+            if(scanner.hasNext()){
+                n = scanner.nextLong();
+
+            }
+
+            long[] trees = getBinaryArray(n);
+
+
+            printWriter = new PrintWriter("output.txt");
+            for(int i = 0; i<trees.length; i++){
+                printWriter.println(trees[i]);
+            }
+            printWriter.close();
+        } catch (IOException ex){
+
+        }
+
+    }
+    public static void main(String[] args) {
+        new Thread(null, new Main(), "", 64 * 1024 * 1024).start();
+    }
+
+
+    long[] getBinaryArray(long number){
+        ArrayList<Long> binary = new ArrayList<>();
+        while(number  != 0){
+            binary.add((long)(number % 2));
+            number = number/2;
+        }
+        ArrayList<Long> bin = new ArrayList<>();
+        for(int i = 0; i<binary.size(); i++){
+            if(binary.get(i) == 1){
+                bin.add((long)i);
+            }
+        }
+        long[] aArray = new long[bin.size()];
+        for(int i = 0; i<aArray.length; i++){
+            aArray[i] = bin.get(i);
+        }
+
+        return aArray;
+    }
+}
