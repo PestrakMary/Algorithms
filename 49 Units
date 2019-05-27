@@ -1,0 +1,86 @@
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Scanner;
+
+public class Main implements Runnable {
+
+    static PrintWriter printWriter;
+
+    @Override
+    public void run() {
+        try {
+            Scanner scanner = new Scanner(new File("input.txt"));
+            long a = 0, b = 0;
+            long k = 0;
+            if(scanner.hasNext()){
+                a = scanner.nextLong();
+                b = scanner.nextLong();
+                k = scanner.nextInt();
+            }
+            b++;
+            long[] aIndex = getBinaryArray(a);
+            long[] bIndex = getBinaryArray(b);
+            long amountOfNumbers = (long)(getAmountOfNumbers(bIndex, k) - getAmountOfNumbers(aIndex, k));
+
+
+            printWriter = new PrintWriter("output.txt");
+            printWriter.print(amountOfNumbers);
+            printWriter.flush();
+        } catch (IOException ex){
+
+        }
+
+    }
+    public static void main(String[] args) {
+        new Thread(null, new Main(), "", 64 * 1024 * 1024).start();
+    }
+
+    long getAmountOfNumbers(long[] a, long k) {
+
+        if(k == 0) return 0;
+
+        long amountOfNumbers = 0;
+        int size = 65;
+        long[][] F = new long[size+1][size+1];
+
+        for (int i = 0; i <= size; i++) {
+            for (int j = 0; j <= i; j++) {
+                if(i == j || j==0)
+                    F[i][j] = 1;
+                else
+                F[i][j] = F[i - 1][j - 1] + F[i - 1][j];
+            }
+        }
+
+
+        for (int i = 0; i < a.length; i++) {
+            if ((k-i) >= 0) {
+                amountOfNumbers += F[(int)a[i]][(int)k - i];
+            }
+        }
+            return amountOfNumbers;
+
+    }
+
+
+    long[] getBinaryArray(long number){
+        ArrayList<Long> binary = new ArrayList<>();
+        while(number  != 0){
+            binary.add((long)(number % 2));
+            number = number/2;
+        }
+        ArrayList<Long> bin = new ArrayList<>();
+        for(int i = binary.size()-1; i>=0; i--){
+            if(binary.get(i) == 1){
+                bin.add((long)i);
+            }
+        }
+        long[] aArray = new long[bin.size()];
+        for(int i = 0; i<aArray.length; i++){
+            aArray[i] = bin.get(i);
+        }
+
+        return aArray;
+    }
+}
