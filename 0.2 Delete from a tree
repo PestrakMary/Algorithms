@@ -1,0 +1,99 @@
+import java.io.*;
+import java.util.Scanner;
+
+public class Main implements Runnable {
+
+    static PrintWriter printWriter;
+
+    static class BinTree {
+        static class Node{
+            public int key;
+            public Node left;
+            public Node right;
+            public Node(int x){
+                this.key = x;
+            }
+        }
+        private Node root;
+        public void insert(int x){
+            root = insert(root, x);
+        }
+        private static Node insert(Node v, int x){
+            if(v == null){
+                return new Node(x);
+            }
+            if(x < v.key){
+                v.left = insert(v.left, x);
+            } else if(x > v.key){
+                v.right = insert(v.right, x);
+            }
+            return v;
+        }
+        public void PreOrderTraversal(Node v){
+            if(v != null) {
+                printWriter.println(v.key);
+                PreOrderTraversal(v.left);
+                PreOrderTraversal(v.right);
+
+            }
+
+        }
+
+        public void delete(int key){
+            this.root = delete(this.root, key);
+        }
+
+        private Node delete(Node v, int key) {
+            if (v == null) return null;
+            if (key < v.key) {
+                v.left = delete(v.left, key);
+                return v;
+            } else if (key > v.key) {
+                v.right = delete(v.right, key);
+                return v;
+            }
+            if (v.left == null) {
+                    return v.right;
+                } else if (v.right == null) {
+                    return v.left;
+                } else {
+                    int minKey = findMin(v.right).key;
+                    v.key = minKey;
+                    v.right = delete(v.right, minKey);
+                    return v;
+                }
+        }
+
+        private Node findMin (Node v){
+          if(v.left!= null)  {
+             return findMin(v.left);
+          }
+          return v;
+        }
+    }
+
+    @Override
+    public void run() {
+        try {
+            Scanner scanner = new Scanner(new File("input.txt"));
+            BinTree tree = new BinTree();
+            int deleteKey = 0;
+            if(scanner.hasNext()){
+                deleteKey = scanner.nextInt();
+            }
+            while (scanner.hasNext()) {
+                tree.insert(scanner.nextInt());
+            }
+            printWriter = new PrintWriter("output.txt");
+            tree.delete(deleteKey);
+            tree.PreOrderTraversal(tree.root);
+            printWriter.flush();
+        } catch (IOException ex){
+
+        }
+
+    }
+    public static void main(String[] args) {
+        new Thread(null, new Main(), "", 64 * 1024 * 1024).start();
+    }
+}
