@@ -1,0 +1,261 @@
+import java.io.*;
+import java.util.Scanner;
+
+public class Main implements Runnable {
+
+    static PrintWriter printWriter;
+    static BinTree.Node semipathRoot;
+    static BinTree.Node centerNode = new BinTree.Node();
+
+    static class BinTree {
+        static class Node {
+            public long key;
+            public int height;
+            public long weight;
+            public long msl;
+            public Node left;
+            public Node right;
+
+            public Node(long x) {
+                super();
+                this.key = x;
+                this.height = 0;
+                this.weight = 0;
+                this.msl = 0;
+            }
+
+            public Node() {
+                super();
+            }
+        }
+
+        private Node root;
+
+        public void insert(long x) {
+            root = insert(root, x);
+        }
+
+        private static Node insert(Node v, long x) {
+            if (v == null) {
+                return new Node(x);
+            }
+            if (x < v.key) {
+                v.left = insert(v.left, x);
+            } else if (x > v.key) {
+                v.right = insert(v.right, x);
+            }
+            return v;
+        }
+
+        public void PostOrderTraversal(Node v) {
+            if (v != null) {
+                PostOrderTraversal(v.left);
+                PostOrderTraversal(v.right);
+                markHeight(v);
+                markWeight(v);
+                markMSL(v);
+                compareWithRoot(v);
+            }
+
+        }
+
+        private void markMSL(Node v) {
+            v.msl = countMSL(v);
+        }
+
+
+        public void PreOrderTraversal(Node v) {
+            if (v != null) {
+                printWriter.println(v.key);
+                PreOrderTraversal(v.left);
+                PreOrderTraversal(v.right);
+            }
+
+        }
+
+        public void InOrderTraversal(Node v) {
+            if (v != null) {
+                InOrderTraversal(v.left);
+                if (v.height == centerNode.height) {
+                    centerNode = v;
+                }
+                InOrderTraversal(v.right);
+            }
+        }
+
+        public void compareWithRoot(Node v) {
+            if (semipathRoot != null) {
+                if (semipathRoot.msl < v.msl) {
+                    semipathRoot = v;
+                } else if (semipathRoot.msl == v.msl) {
+                    if (semipathRoot.right != null && semipathRoot.left != null
+                            && v.left != null && v.right != null) {
+                        long rootWeight = semipathRoot.right.weight + semipathRoot.left.weight + semipathRoot.key;
+                        long vWeight = v.right.weight + v.left.weight + v.key;
+                        if (rootWeight < vWeight) {
+                            semipathRoot = v;
+                        }
+                    } else
+                    if (semipathRoot.right != null && semipathRoot.left != null
+                            && v.left == null && v.right != null) {
+                        long rootWeight = semipathRoot.right.weight + semipathRoot.left.weight + semipathRoot.key;
+                        long vWeight = v.weight;
+                        if (rootWeight < vWeight) {
+                            semipathRoot = v;
+                        }
+                    } else
+                    if (semipathRoot.right != null && semipathRoot.left != null && v.left != null && v.right == null) {
+                        long rootWeight = semipathRoot.right.weight + semipathRoot.left.weight + semipathRoot.key;
+                        long vWeight = v.weight;
+                        if (rootWeight < vWeight) {
+                            semipathRoot = v;
+                        }
+                    } else
+                    if (semipathRoot.right != null && semipathRoot.left == null && v.left != null && v.right != null) {
+                        long rootWeight = semipathRoot.weight + semipathRoot.key;
+                        long vWeight = v.right.weight + v.left.weight + v.key;
+                        if (rootWeight < vWeight) {
+                            semipathRoot = v;
+                        }
+                    } else
+                    if (semipathRoot.right == null && semipathRoot.left != null && v.left != null && v.right != null) {
+                        long rootWeight = semipathRoot.weight + semipathRoot.key;
+                        long vWeight = v.right.weight + v.left.weight + v.key;
+                        if (rootWeight < vWeight) {
+                            semipathRoot = v;
+                        }
+                    } else
+                    if ((semipathRoot.left != null || semipathRoot.right != null) && (v.left != null || v.right != null)) {
+                        long rootWeight = semipathRoot.weight;
+                        long vWeight = v.weight;
+                        if (rootWeight < vWeight) {
+                            semipathRoot = v;
+                        }
+                    }
+                }
+            } else {
+                semipathRoot = v;
+            }
+
+        }
+
+        private long countMSL(Node v) {
+            long MSL = 0;
+            if (v.left != null && v.right != null) {
+                MSL = v.left.height + v.right.height + 2;
+            } else if (v.left != null) {
+                MSL = v.left.height + 1;
+            } else if (v.right != null) {
+                MSL = v.right.height + 1;
+            }
+            return MSL;
+        }
+
+        public void markHeight(Node v) {
+            if (v.left == null && v.right != null) {
+                v.height = v.right.height + 1;
+            }
+            if (v.right == null && v.left != null) {
+                v.height = v.left.height + 1;
+            }
+            if (v.right != null && v.left != null) {
+                if (v.right.height >= v.left.height) {
+                    v.height = v.right.height + 1;
+                } else {
+                    v.height = v.left.height + 1;
+                }
+            }
+        }
+
+        public void markWeight(Node v) {
+            if (v.left == null && v.right != null) {
+                v.weight = v.right.weight + v.key;
+            } else if (v.right == null && v.left != null) {
+                v.weight = v.left.weight + v.key;
+            } else if (v.right != null && v.left != null) {
+                if (v.right.height == v.left.height) {
+                    if (v.right.weight>= v.left.weight) {
+                        v.weight = v.right.weight + v.key;
+                    } else {
+                        v.weight = v.left.weight + v.key;
+                    }
+                } else {
+                    if (v.right.height > v.left.height) {
+                        v.weight = v.right.weight + v.key;
+                    } else {
+                        v.weight = v.left.weight + v.key;
+                    }
+                }
+            } else {
+                v.weight = v.key;
+            }
+
+        }
+
+        public void delete(long key) {
+            this.root = delete(this.root, key);
+        }
+
+        private Node delete(Node v, long key) {
+            if (v == null) return null;
+            if (key < v.key) {
+                v.left = delete(v.left, key);
+                return v;
+            } else if (key > v.key) {
+                v.right = delete(v.right, key);
+                return v;
+            }
+            if (v.left == null) {
+                return v.right;
+            } else if (v.right == null) {
+                return v.left;
+            } else {
+                long minKey = findMin(v.right).key;
+                v.key = minKey;
+                v.right = delete(v.right, minKey);
+                return v;
+            }
+        }
+
+        private Node findMin(Node v) {
+            if (v.left != null) {
+                return findMin(v.left);
+            }
+            return v;
+        }
+
+    }
+
+
+    @Override
+    public void run() {
+        try {
+            Scanner scanner = new Scanner(new File("in.txt"));
+            BinTree tree = new BinTree();
+            while (scanner.hasNext()) {
+                tree.insert(scanner.nextLong());
+            }
+            printWriter = new PrintWriter("out.txt");
+            tree.PostOrderTraversal(tree.root);
+
+            if (semipathRoot.msl % 2 == 0) {
+                centerNode.height = (int) semipathRoot.msl / 2;
+                if (centerNode.height != semipathRoot.height) {
+                    tree.InOrderTraversal(tree.root);
+                    tree.delete(centerNode.key);
+                }
+
+            }
+            tree.delete(semipathRoot.key);
+            tree.PreOrderTraversal(tree.root);
+            printWriter.flush();
+        } catch (IOException ex) {
+
+        }
+
+    }
+
+    public static void main(String[] args) {
+        new Thread(null, new Main(), "", 64 * 1024 * 1024).start();
+    }
+}
