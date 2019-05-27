@@ -1,0 +1,151 @@
+import java.io.*;
+import java.util.*;
+
+
+public class Main implements Runnable {
+    int n, m;
+    int maxLongInt = Integer.MAX_VALUE/2;
+    int[][] priority;
+    int[] townCost;
+    int[][] numberOfWays;
+    int[] flagOfWay;
+    int money = 0;
+    boolean[] mark;
+    int[] parent;
+
+    @Override
+    public void run() {
+        try {
+            FastScanner scanner = new FastScanner("campaign.in");
+            PrintWriter printWriter = new PrintWriter("campaign.out");
+            n = scanner.nextInt();
+            n++;
+            m = scanner.nextInt();
+            m++;
+            townCost = new int[n];
+            for(int i =1; i<n; i++) townCost[i] = scanner.nextInt();
+            priority = new int[n][n];
+            for(int i=1; i<n; i++){
+                priority[i] = new int[n];
+                for(int j = 1; j<n; j++){
+                    priority[i][j] = maxLongInt;
+                }
+            }
+            flagOfWay = new int[m];
+            numberOfWays = new int[n][n];
+            int a, b, p, c;
+            for(int i = 1; i<m; i++){
+                a = scanner.nextInt();
+                b = scanner.nextInt();
+                p = scanner.nextInt();
+                c = scanner.nextInt();
+                if(p == 1){
+                    flagOfWay[i] = -1;
+                    money+=c;
+                }
+                numberOfWays[a][b] = i;
+                numberOfWays[b][a] = i;
+                priority[a][b] = c + townCost[b];
+                priority[b][a] = c + townCost[a];
+            }
+            parent = new int[n];
+            mark = new boolean[n];
+            int[] d = new int[n];
+            for(int i = 0; i<n; i++){
+                d[i] = maxLongInt;
+            }
+            d[1] = 0;
+            for(int i = 1; i<n; i++){
+                int mi = 0;
+                for(int j = 1; j<n; j++){
+                    if(!mark[j] && d[j]<d[mi]) mi = j;
+                }
+                mark[mi] = true;
+                for(int j=1; j<n; j++){
+                    if(d[j]>d[mi] + priority[mi][j]){
+                        d[j] = d[mi]+priority[mi][j];
+                        parent[j] = mi;
+                    }
+                }
+            }
+            if(money<d[n-1]){
+                printWriter.println(-1);
+            } else{
+                ArrayList<Integer> third = new ArrayList<>();
+                int i=n-1;
+                int j=parent[n-1];
+                third.add(i);
+                while(j!=0){
+                    third.add(j);
+                    flagOfWay[numberOfWays[i][j]]++;
+                    i = parent[i];
+                    j = parent[j];
+                }
+                ArrayList<Integer> first = new ArrayList<>();
+                ArrayList<Integer> second = new ArrayList<>();
+                int numbFirst = 0;
+                int numbSecond = 0;
+                for(int k = m-1; k>0; k--){
+                    switch (flagOfWay[k]){
+                        case 1:{
+                            numbSecond++;
+                            second.add(k);
+                            break;
+                        }
+                        case -1:{
+                            numbFirst++;
+                            first.add(k);
+                            break;
+                        }
+                            default:break;
+                    }
+                }
+                printWriter.print(numbFirst+ " ");
+                for(int k = first.size()-1; k>=0; k--){
+                    if(k!= 0)
+                    printWriter.print(first.get(k)+" ");
+                    else printWriter.println(first.get(k));
+                }
+                printWriter.print(numbSecond+" ");
+                for(int k = second.size()-1; k>=0; k--){
+                    if(k!= 0)
+                    printWriter.print(second.get(k)+" ");
+                    else printWriter.println(second.get(k));
+                }
+                for(int k = third.size()-1; k>=0; k--) printWriter.print(third.get(k)+" ");
+            }
+            printWriter.flush();
+        }
+        catch (IOException ex) {
+
+            }
+    }
+    public static void main(String[] args) {
+        new Thread(null, new Main(), "", 64 * 1024 * 1024).start();
+
+    }
+
+    class FastScanner {
+        BufferedReader reader;
+        StringTokenizer tokenizer;
+
+        public FastScanner(String fileName) throws IOException {
+            reader = new BufferedReader(new FileReader(fileName));
+        }
+
+        public String next() throws IOException {
+            while (tokenizer == null || !tokenizer.hasMoreTokens()) {
+                String line = reader.readLine();
+                if (line == null) {
+                    throw new EOFException();
+                }
+                tokenizer = new StringTokenizer(line);
+            }
+            return tokenizer.nextToken();
+        }
+
+        public int nextInt() throws IOException {
+            return Integer.parseInt(next());
+        }
+    }
+}
