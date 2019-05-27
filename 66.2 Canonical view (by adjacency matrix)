@@ -1,0 +1,49 @@
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Scanner;
+import java.util.StringTokenizer;
+
+public class Main implements Runnable {
+
+    static PrintWriter printWriter;
+
+    @Override
+    public void run() {
+        try {
+            int n;
+            Scanner scanner = new Scanner(new File("input.txt"));
+            n = scanner.nextInt();
+            int[][] A = new int[n][n];
+
+            for(int i = 0; i<n; i++) {
+                for (int j = 0; j < n; j++) {
+                   A[i][j] = scanner.nextInt();
+                }
+            }
+
+            int[] array = new int[n];
+            for(int i = 0; i< n; i++) {
+                for(int j = 0; j<n; j++) {
+                    if (A[j][i]!=0) array[i] = j+1;
+                }
+            }
+
+            printWriter = new PrintWriter("output.txt");
+            for(int i = 0; i<n; i++) {
+                printWriter.print(array[i] + " ");
+            }
+
+
+
+                printWriter.flush();
+        } catch (IOException ex) {
+
+        }
+
+    }
+
+    public static void main(String[] args) {
+        new Thread(null, new Main(), "", 64 * 1024 * 1024).start();
+
+    }
+}
