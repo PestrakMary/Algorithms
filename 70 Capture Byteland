@@ -1,0 +1,95 @@
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Scanner;
+
+import static java.lang.Math.min;
+
+public class Main implements Runnable {
+
+    //long[][][] F;
+    int[] data;
+    long[][] score;
+    long [][] F;
+    static PrintWriter printWriter;
+    @Override
+    public void run() {
+        try {
+            Scanner scanner = new Scanner(new File("input.txt"));
+            int n = 0, m = 0;
+            if (scanner.hasNext()) {
+                n = scanner.nextInt();
+                m = scanner.nextInt();
+            }
+            data = new int[n];
+            F = new long[n][n];
+            for(int i = 0; i<n; i++){
+                data[i] = scanner.nextInt();
+            }
+            countScore();
+            printWriter = new PrintWriter("output.txt");
+            printWriter.print(F(n, m));
+            printWriter.flush();
+        } catch (IOException ex) {
+
+        }
+
+    }
+
+    void countScore(){
+        score = new long[data.length][data.length];
+        for(int i = 0; i<data.length; i++){
+            for(int j = i+1; j<data.length; j++){
+                score[i][j] = score[i][j - 1];
+                for (int k = i; k < j; k++) {
+                    score[i][j] += data[k] * data[j];
+                }
+                score[j][i] = score[i][j];
+            }
+        }
+    }
+
+    long F(int number, int delete){
+        for(int i=0; i < data.length; i++)
+        {
+            F[i][0] = score[0][i];
+        }
+        for (int i = 1; i <= delete; i++) {
+            for (int j = 1; j < number; j++) {
+                F[j][i] = Long.MAX_VALUE;
+                for (int k = 0; k < j; k++) {
+                    F[j][i] = min(F[j][i], F[k][i - 1] + score[k + 1][j]);
+                }
+            }
+        }
+        return F[number-1][delete];
+    }
+
+
+   /* long F(int start, int finish, int delete){
+        long result = 0;
+        if( F [start][finish][delete]!= 0) return F [start][finish][delete];
+        if (delete == 0) {
+            for (int i = start; i < finish; i++) {
+                for (int j = i + 1; j <= finish; j++) {
+                    result += data[i] * data[j];
+                }
+            }
+            F[start][finish][delete] = result;
+            return F[start][finish][delete];
+        } else {
+            result = Long.MAX_VALUE;
+            for (int i = finish; i >= delete; i--) {
+                long value = F(i, finish, 0) + F(start, i - 1, delete - 1);
+                result = Math.min(result, value);
+            }
+            F[start][finish][delete] = result;
+            return F[start][finish][delete];
+        }
+    }
+*/
+
+    public static void main(String[] args) {
+        new Thread(null, new Main(), "", 64 * 1024 * 1024).start();
+    }
+}
