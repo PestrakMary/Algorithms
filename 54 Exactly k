@@ -1,0 +1,163 @@
+import java.io.*;
+import java.util.*;
+
+public class Main implements Runnable {
+
+   ArrayList<Integer> mt;
+
+    int n, m;
+
+
+    ArrayList<Integer> minEven, minOdd;
+    ArrayList<Integer>[] g;
+    ArrayList<Boolean> metEven, metOdd;
+
+    class Pair{
+        Integer numb;
+        Boolean flag;
+        Pair(int n, boolean b){
+            numb = n;
+            flag = b;
+        }
+    }
+
+    void bfs() {
+        LinkedList<Pair> que = new LinkedList<>();
+        que.add(new Pair(1, true));
+
+        while (!que.isEmpty()) {
+            Pair u = que.peek();
+            que.pop();
+            int curr;
+
+            for (int v : g[u.numb]) {
+                if (u.flag) {
+                    if (!metOdd.get(v)) {
+                        metOdd.set(v, true);
+                        minOdd.set(v, minEven.get(u.numb) + 1);
+                        que.add(new Pair(v, false));
+                    }
+                }
+                else {
+                    if (!metEven.get(v)) {
+                        metEven.set(v, true);
+                        minEven.set(v, minOdd.get(u.numb) + 1);
+                        que.add(new Pair(v, true));
+                    }
+                }
+            }
+
+        }
+    }
+    @Override
+    public void run() {
+        try {
+            mt = new ArrayList<>();
+            minEven = new ArrayList<>();
+            minOdd = new ArrayList<>();
+            metEven = new ArrayList<>();
+            metOdd = new ArrayList<>();
+
+            FastScanner scanner = new FastScanner("input.txt");
+
+            PrintWriter pw = new PrintWriter("output.txt");
+            n = scanner.nextInt();
+            m = scanner.nextInt();
+            g = new ArrayList[n+1];
+            for(int i=0; i<n+1; i++){
+                g[i] = new ArrayList<>();
+            }
+            int x, y;
+            for(int i = 0; i<n+1; i++) {
+                mt.add(i, -1);
+            }
+            for (int i = 0; i < m; ++i) {
+                x = scanner.nextInt();
+                y = scanner.nextInt();
+                g[x].add(y);
+                g[y].add(x);
+            }
+
+            for(int i = 0; i<n+1; i++)
+                metEven.add(i, false);
+            for(int i = 0; i<n+1; i++)
+                metOdd.add(i, false);
+
+            for(int i = 0; i<n+1; i++)
+                minEven.add(i, Integer.MAX_VALUE);
+            for(int i = 0; i<n+1; i++)
+                minOdd.add(i, Integer.MAX_VALUE);
+
+            metEven.set(1, true);
+            minEven.set(1, 0);
+            bfs();
+            int col = scanner.nextInt();
+            int to, steps;
+            for (int j = 0; j < col; ++j) {
+                 to = scanner.nextInt();
+                 steps = scanner.nextInt();
+                if (to == 1 && g[1].isEmpty()) {
+                    if (steps > 0) {
+                        pw.println("No");
+                    }
+                    else {
+                        pw.println("Yes");
+                    }
+                }
+                else {
+                    if (steps % 2 == 0) {
+                        if (minEven.get(to) <= steps) {
+                            pw.println("Yes");
+                        }
+                        else {
+                            pw.println("No");
+                        }
+                    }
+                    else {
+                        if (minOdd.get(to) <= steps) {
+                            pw.println("Yes");
+                        }
+                        else {
+                            pw.println("No");
+                        }
+                    }
+                }
+            }
+
+            pw.flush();
+        } catch (IOException ex){
+
+        }
+    }
+
+
+
+    public static void main(String[] args) {
+        new Thread(null, new Main(), "", 64 * 1024 * 1024).start();
+
+    }
+
+    class FastScanner {
+        BufferedReader reader;
+        StringTokenizer tokenizer;
+
+        public FastScanner(String fileName) throws IOException {
+            reader = new BufferedReader(new FileReader(fileName));
+        }
+
+        public String next() throws IOException {
+            while (tokenizer == null || !tokenizer.hasMoreTokens()) {
+                String line = reader.readLine();
+                if (line == null) {
+                    throw new EOFException();
+                }
+                tokenizer = new StringTokenizer(line);
+            }
+            return tokenizer.nextToken();
+        }
+
+        public int nextInt() throws IOException {
+            return Integer.parseInt(next());
+        }
+    }
+}
