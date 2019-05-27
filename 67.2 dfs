@@ -1,0 +1,85 @@
+import java.io.*;
+import java.util.*;
+
+
+public class Main implements Runnable {
+
+    int[] key;
+    boolean[] visit;
+    int numb = 0;
+    int n;
+    int[][] graph;
+
+    static PrintWriter printWriter;
+
+
+    @Override
+    public void run() {
+        try {
+            FastScanner scanner = new FastScanner("input.txt");
+            n = scanner.nextInt();
+            graph = new int[n][n];
+            key = new int[n];
+            visit = new boolean[n];
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < n; j++) {
+                    graph[i][j] = scanner.nextInt();
+                }
+            }
+            for(int s =0; s<n; s++){
+                if(visit[s] == false){
+                    dfs(s);
+                }
+            }
+
+            printWriter = new PrintWriter("output.txt");
+            for (int i = 0; i < n; i++)
+                printWriter.print(key[i] + " ");
+            printWriter.flush();
+        } catch (IOException ex) {
+
+        }
+
+    }
+
+    void dfs(int v){
+        visit[v] = true;
+        numb++;
+        key[v] = numb;
+        for(int i =0; i<n; i++){
+            if(graph[v][i] == 1) {
+                if (!visit[i])
+                    dfs(i);
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        new Thread(null, new Main(), "", 64 * 1024 * 1024).start();
+
+    }
+
+    class FastScanner {
+        BufferedReader reader;
+        StringTokenizer tokenizer;
+
+        public FastScanner(String fileName) throws IOException {
+            reader = new BufferedReader(new FileReader(fileName));
+        }
+
+        public String next() throws IOException {
+            while (tokenizer == null || !tokenizer.hasMoreTokens()) {
+                String line = reader.readLine();
+                if (line == null) {
+                    throw new EOFException();
+                }
+                tokenizer = new StringTokenizer(line);
+            }
+            return tokenizer.nextToken();
+        }
+
+        public int nextInt() throws IOException {
+            return Integer.parseInt(next());
+        }
+    }
+}
