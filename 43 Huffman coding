@@ -1,0 +1,97 @@
+import java.io.*;
+import java.util.*;
+
+     class Node {
+        public Long key;
+        public Node left;
+        public Node right;
+
+        public Node(Long x) {
+            this.key = x;
+        }
+    }
+
+public class Main implements Runnable {
+
+    static PrintWriter printWriter;
+    Node rightChild;
+    Node leftChild;
+    Node parent;
+
+    long textLenght = 0;
+
+    void countTextLenght(Node temp, int mark){
+        if(temp.right!= null && temp.left!= null){
+            mark++;
+            countTextLenght(temp.left, mark);
+            countTextLenght(temp.right, mark);
+        } else{
+            textLenght+=temp.key*mark;
+            mark--;
+        }
+    }
+
+    @Override
+    public void run() {
+        try {
+            int n;
+            FastScanner scanner = new FastScanner("huffman.in");
+            n = (int)scanner.nextLong();
+            PriorityQueue<Node> priorityQueue = new PriorityQueue<>(new Comparator<Node>() {
+                @Override
+                public int compare(Node o1, Node o2) {
+                    return o1.key.compareTo(o2.key);
+                }
+            });
+           for(int i = 0; i<n; i++){
+               priorityQueue.offer(new Node(scanner.nextLong()));
+           }
+           while(priorityQueue.size()>1){
+               rightChild = priorityQueue.poll();
+               leftChild = priorityQueue.poll();
+               parent = new Node(rightChild.key+leftChild.key);
+               parent.left = leftChild;
+               parent.right = rightChild;
+               priorityQueue.offer(parent);
+           }
+           int mark = 0;
+           countTextLenght(parent, mark);
+
+            printWriter = new PrintWriter("huffman.out");
+            printWriter.println(textLenght);
+            printWriter.flush();
+        } catch (IOException ex) {
+
+        }
+
+    }
+
+    public static void main(String[] args) {
+        new Thread(null, new Main(), "", 64 * 1024 * 1024).start();
+
+    }
+
+    class FastScanner {
+        BufferedReader reader;
+        StringTokenizer tokenizer;
+
+        public FastScanner(String fileName) throws IOException {
+            reader = new BufferedReader(new FileReader(fileName));
+        }
+
+        public String next() throws IOException {
+            while (tokenizer == null || !tokenizer.hasMoreTokens()) {
+                String line = reader.readLine();
+                if (line == null) {
+                    throw new EOFException();
+                }
+                tokenizer = new StringTokenizer(line);
+            }
+            return tokenizer.nextToken();
+        }
+
+        public long nextLong() throws IOException {
+            return Long.parseLong(next());
+        }
+    }
+}
