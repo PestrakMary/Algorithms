@@ -1,0 +1,55 @@
+import java.io.*;
+import java.util.Scanner;
+
+public class Main implements Runnable {
+
+    static PrintWriter printWriter;
+
+    @Override
+    public void run() {
+        try {
+            Scanner scanner = new Scanner(new File("input.txt"));
+            int s = 0;
+            if(scanner.hasNext()){
+                s = scanner.nextInt();
+            }
+            long[][] F = new long[s+1][s+1];
+            long[] n = new long[s+1];
+            long[] m = new long[s+1];
+            for(int i = 1; i<=s; i++){
+               if(scanner.hasNext()){
+                   n[i] = scanner.nextLong();
+                   m[i] = scanner.nextLong();
+               }
+           }
+
+           for(int i = 1; i<=s; i++){
+               F[i][i] = 0;
+           }
+           for(int p = 1; p<=s; p++){
+               for(int i = 1; i<=s-p; i++){
+                  long min = Long.MAX_VALUE;
+                  int j = i+p;
+                  for(int k = i; k<=j-1; k++){
+                      if(min>(F[i][k]+F[k+1][j]+n[i]*m[k]*m[j])){
+                        min = F[i][k]+F[k+1][j]+n[i]*m[k]*m[j];
+                          F[i][j] = min;
+                      }
+
+                   }
+               }
+           }
+
+
+            printWriter = new PrintWriter("output.txt");
+           printWriter.println(F[1][s]);
+            printWriter.flush();
+        } catch (IOException ex){
+
+        }
+
+    }
+    public static void main(String[] args) {
+        new Thread(null, new Main(), "", 64 * 1024 * 1024).start();
+    }
+}
