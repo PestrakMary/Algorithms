@@ -1,0 +1,111 @@
+import java.io.*;
+import java.util.*;
+
+
+public class Main implements Runnable {
+
+    class Cell{
+        int row;
+        int col;
+        Cell(int r, int c){
+            row = r;
+            col = c;
+
+        }
+    }
+
+
+    static PrintWriter printWriter;
+    int[][] arr;
+
+
+    @Override
+    public void run() {
+        try {
+            int n, m;
+            int numb = 0;
+            FastScanner scanner = new FastScanner("in.txt");
+            m = scanner.nextInt();
+            n = scanner.nextInt();
+            arr = new int[m][n];
+            for(int i=0; i<m; i++){
+                for(int j = 0; j<n; j++){
+                        arr[i][j] = scanner.nextInt();
+                }
+            }
+            Stack<Cell> stack = new Stack<>();
+            for(int i = 0; i<m; i++) {
+                for (int j = 0; j < n; j++) {
+                    if (arr[i][j] == 0) {
+                        arr[i][j] = 1;
+                        stack.push(new Cell(i, j));
+                        numb++;
+                    }
+                    while (!stack.isEmpty()) {
+                        Cell temp = stack.pop();
+                        if (temp.col>0 && arr[temp.row][temp.col-1] == 0) {
+                                arr[temp.row][temp.col-1] = 1;
+                                stack.push(new Cell(temp.row, temp.col-1));
+                            }
+                            if (temp.row<m-1 && arr[temp.row+1][temp.col] == 0) {
+                                arr[temp.row+1][temp.col] = 1;
+                                stack.push(new Cell(temp.row+1,temp.col));
+                            }
+
+                        if (temp.col<n-1 && arr[temp.row][temp.col+1] == 0) {
+                            arr[temp.row][temp.col+1] = 1;
+                            stack.push(new Cell(temp.row,temp.col+1));
+                        }
+                        if (temp.row>0 && arr[temp.row-1][temp.col] == 0) {
+                            arr[temp.row-1][temp.col] = 1;
+                            stack.push(new Cell(temp.row-1, temp.col));
+                        }
+                        if (temp.row==m-1 && arr[0][temp.col] == 0) {
+                            arr[0][temp.col] = 1;
+                            stack.push(new Cell(0,temp.col));
+                        }
+                        if(temp.row == 0 && arr[m-1][temp.col] == 0){
+                            arr[m-1][temp.col] = 1;
+                            stack.push(new Cell(m-1, temp.col));
+                        }
+                        }
+                    }
+                }
+            printWriter = new PrintWriter("out.txt");
+            printWriter.println(numb);
+            printWriter.flush();
+        } catch (IOException ex) {
+
+        }
+
+    }
+
+    public static void main(String[] args) {
+        new Thread(null, new Main(), "", 64 * 1024 * 1024).start();
+
+    }
+
+    class FastScanner {
+        BufferedReader reader;
+        StringTokenizer tokenizer;
+
+        public FastScanner(String fileName) throws IOException {
+            reader = new BufferedReader(new FileReader(fileName));
+        }
+
+        public String next() throws IOException {
+            while (tokenizer == null || !tokenizer.hasMoreTokens()) {
+                String line = reader.readLine();
+                if (line == null) {
+                    throw new EOFException();
+                }
+                tokenizer = new StringTokenizer(line);
+            }
+            return tokenizer.nextToken();
+        }
+
+        public int nextInt() throws IOException {
+            return Integer.parseInt(next());
+        }
+    }
+}
