@@ -1,0 +1,62 @@
+import java.io.*;
+import java.util.Scanner;
+
+public class Main implements Runnable {
+
+    static PrintWriter printWriter;
+
+    static class BinTree {
+        static class Node{
+            public Long key;
+            public Node left;
+            public Node right;
+            public Node(Long x){
+                this.key = x;
+            }
+        }
+       private Node root;
+       public void insert(Long x){
+           root = insert(root, x);
+       }
+       private static Node insert(Node v, Long x){
+           if(v == null){
+               return new Node(x);
+           }
+           if(x < v.key){
+               v.left = insert(v.left, x);
+           } else if(x > v.key){
+               v.right = insert(v.right, x);
+           }
+           return v;
+       }
+       public void PreOrderTraversal(Node node){
+           if(node != null) {
+               printWriter.println(node.key);
+               PreOrderTraversal(node.left);
+               PreOrderTraversal(node.right);
+
+           }
+
+       }
+    }
+
+    @Override
+    public void run() {
+        try {
+            Scanner scanner = new Scanner(new File("input.txt"));
+            BinTree tree = new BinTree();
+            while (scanner.hasNext()) {
+                tree.insert(scanner.nextLong());
+            }
+            printWriter = new PrintWriter("output.txt");
+            tree.PreOrderTraversal(tree.root);
+            printWriter.flush();
+        } catch (IOException ex){
+
+        }
+
+    }
+    public static void main(String[] args) {
+        new Thread(null, new Main(), "", 64 * 1024 * 1024).start();
+    }
+}
